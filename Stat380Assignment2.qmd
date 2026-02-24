@@ -3,3 +3,7 @@ title: "Stat380Assignment2"
 format: html
 ---
 
+This is a push test
+
+git config --global user.email "youremail.edu"
+git config --global user.name "Your Name"
