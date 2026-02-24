@@ -1,0 +1,5 @@
+---
+title: "Stat380Assignment2"
+format: html
+---
+
