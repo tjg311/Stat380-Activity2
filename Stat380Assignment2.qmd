@@ -3,6 +3,23 @@ title: "Stat380Assignment2"
 format: html
 ---
 
+```{r}
+#| echo: false
+
+library(ggplot2)
+
+insurance_data <- read.csv("insurance_data_S26.csv", header = TRUE)
+
+for (col_name in colnames(insurance_data)) {
+  ggplot(insurance_data, aes(col_name, charges)) + 
+    geom_smooth(data = insurance_data, method = "lm", color = "red")
+}
+
+ggplot(insurance_data, aes(age, charges)) + 
+  geom_point() +
+    geom_smooth(data = insurance_data, method = "lm", color = "red")
+```
+
 This is a push test
 
 git config --global user.email "youremail.edu"
