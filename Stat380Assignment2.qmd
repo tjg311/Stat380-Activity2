@@ -6,10 +6,15 @@ format: html
 ```{r}
 #| echo: false
 
+options(warn = -1)
+
 library(ggplot2)
 
 insurance_data <- read.csv("insurance_data_S26.csv", header = TRUE)
 
+xcont <- colnames(insurance_data)
+
+xcat
 
 for (col_name in colnames(insurance_data)) {
   plot <- ggplot(insurance_data, aes(insurance_data[[col_name]], charges)) + 
