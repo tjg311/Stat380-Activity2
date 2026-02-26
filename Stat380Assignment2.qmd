@@ -48,6 +48,9 @@ for (col_name in xcat) {
 
 ```
 
+During Exploratory Data Analysis, we used a for loop to graph each predictor variable against charges, the response variable we are trying to predict. After reviewing the initial plots, we determined that categorical variables would be better visualized using boxplots, while continuous variables were more appropriately displayed as scatterplots. We therefore separated the categorical and continuous variables, plotting the categorical variables as boxplots and the continuous variables as scatterplots with a fitted linear regression line to better assess potential relationships.
+
+
 This is a push test
 
 git config --global user.email "youremail.edu"
