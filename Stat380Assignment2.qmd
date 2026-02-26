@@ -12,11 +12,13 @@ insurance_data <- read.csv("insurance_data_S26.csv", header = TRUE)
 
 cols_num <- which(sapply(insurance_data, is.numeric))
 
-xcont <- list("age", "bmi", "priorclaims")
+xcont <- list("age", "bmi")
 
 cols_num <- which(sapply(insurance_data, function (x) !(is.numeric(x))))
 
-xcat <- list("sex", "smoker", "region", "children", "month", "priorclaims")
+xcat <- list("smoker", "children", "priorclaims")
+
+# Excluded Variables: X, caseid, month, sex, region
 
 print(xcont)
 print(xcat)
