@@ -10,14 +10,19 @@ library(ggplot2)
 
 insurance_data <- read.csv("insurance_data_S26.csv", header = TRUE)
 
+
 for (col_name in colnames(insurance_data)) {
-  ggplot(insurance_data, aes(col_name, charges)) + 
-    geom_smooth(data = insurance_data, method = "lm", color = "red")
+  plot <- ggplot(insurance_data, aes(insurance_data[[col_name]], charges)) + 
+  geom_point() +
+    geom_smooth(data = insurance_data, method = "lm", color = "red") +
+    labs(
+    title = paste(col_name, " vs Charges"),
+    x = paste(col_name),
+    y = "Charges"
+  )
+  print(plot)
 }
 
-ggplot(insurance_data, aes(age, charges)) + 
-  geom_point() +
-    geom_smooth(data = insurance_data, method = "lm", color = "red")
 ```
 
 This is a push test
