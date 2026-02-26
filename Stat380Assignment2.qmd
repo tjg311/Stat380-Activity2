@@ -6,20 +6,36 @@ format: html
 ```{r}
 #| echo: false
 
-options(warn = -1)
-
 library(ggplot2)
 
 insurance_data <- read.csv("insurance_data_S26.csv", header = TRUE)
 
-xcont <- colnames(insurance_data)
+cols_num <- which(sapply(insurance_data, is.numeric))
 
-xcat
+xcont <- list("age", "bmi", "priorclaims")
 
-for (col_name in colnames(insurance_data)) {
+cols_num <- which(sapply(insurance_data, function (x) !(is.numeric(x))))
+
+xcat <- list("sex", "smoker", "region", "children", "month", "priorclaims")
+
+print(xcont)
+print(xcat)
+
+for (col_name in xcont) {
   plot <- ggplot(insurance_data, aes(insurance_data[[col_name]], charges)) + 
   geom_point() +
     geom_smooth(data = insurance_data, method = "lm", color = "red") +
+    labs(
+    title = paste(col_name, " vs Charges"),
+    x = paste(col_name),
+    y = "Charges"
+  )
+  print(plot)
+}
+
+for (col_name in xcat) {
+  plot <- ggplot(insurance_data, aes(as.factor(insurance_data[[col_name]]), charges)) + 
+  geom_boxplot() +
     labs(
     title = paste(col_name, " vs Charges"),
     x = paste(col_name),
