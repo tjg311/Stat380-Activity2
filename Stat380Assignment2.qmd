@@ -59,8 +59,23 @@ for (col_name in xcat) {
 
 During Exploratory Data Analysis, we used a for loop to graph each predictor variable against charges, the response variable we are trying to predict. After reviewing the initial plots, we determined that categorical variables would be better visualized using boxplots, while continuous variables were more appropriately displayed as scatterplots. We therefore separated the categorical and continuous variables, plotting the categorical variables as boxplots and the continuous variables as scatterplots with a fitted linear regression line to better assess potential relationships.
 
+```{r}
 
-This is a push test
+x <- list("age", "bmi", "smoker", "children", "priorclaims")
 
-git config --global user.email "youremail.edu"
-git config --global user.name "Your Name"
+
+
+smoker <- filter(insurance_data, smoker == TRUE)
+
+smoker
+
+for (col_name in x) {
+  model <- lm(col_name ~ charges, data = smoker)
+  summary(model)
+
+  model <- lm(col_name ~ charges, data = filter(insurance_data, insurance_data$smoker == FALSE))
+  summary(model)
+}
+
+
+```
