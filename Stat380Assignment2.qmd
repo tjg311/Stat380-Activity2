@@ -1,7 +1,14 @@
 ---
 title: "Stat380Assignment2"
+author: "James DiPasquale, Tyler, Ahmad"
 format: html
 ---
+
+Insurance pricing depends heavily on understanding which factors actually drive cost. Nittany Valley Insurance Company provided us with policy data and asked us to build a predictive model to predict total insurance charges using linear regression techniques. The dataset includes demographic and behavioral variables such as age, sex, BMI, smoking status, number of dependents, region, claim month, and prior claim activity, along with the total charges billed to each policy.
+
+Our objective is to use this information to build and evaluate predictive models for insurance charges. To do this, we begin with exploratory data analysis to better understand patterns, distributions, and relationships within the data. From there, we develop multiple candidate linear regression models, interpret the estimated coefficients, and assess model performance using appropriate validation methods.
+
+The ultimate goal of this analysis is to recommend the best possible model that is both statistically sound and practically useful for the company’s pricing and risk management decisions.
 
 ```{r}
 #| echo: false
