@@ -1,6 +1,6 @@
 ---
 title: "Stat380Assignment2"
-author: "James DiPasquale, Tyler, Ahmad"
+author: "James DiPasquale, Tyler Gully, Ahmad"
 format: html
 ---
 
@@ -62,20 +62,5 @@ During Exploratory Data Analysis, we used a for loop to graph each predictor var
 ```{r}
 
 x <- list("age", "bmi", "smoker", "children", "priorclaims")
-
-
-
-smoker <- filter(insurance_data, smoker == TRUE)
-
-smoker
-
-for (col_name in x) {
-  model <- lm(col_name ~ charges, data = smoker)
-  summary(model)
-
-  model <- lm(col_name ~ charges, data = filter(insurance_data, insurance_data$smoker == FALSE))
-  summary(model)
-}
-
 
 ```
