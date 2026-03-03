@@ -10,6 +10,8 @@ Our objective is to use this information to build and evaluate predictive models
 
 The ultimate goal of this analysis is to recommend the best possible model that is both statistically sound and practically useful for the company’s pricing and risk management decisions.
 
+## Exploratory Data Analysis
+
 ```{r}
 #| echo: false
 
