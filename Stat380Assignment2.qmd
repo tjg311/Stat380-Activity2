@@ -106,3 +106,7 @@ col_list <- list("age", "bmi", "smoker", "children", "priorclaims")
 
 ##### [Refinements Discussion]
 
+### Final recommendations
+
+##### A paragraph to summarize your recommended model and key findings.
+
