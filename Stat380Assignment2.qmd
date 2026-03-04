@@ -4,13 +4,15 @@ author: "James DiPasquale, Tyler Gully, Ahmad"
 format: html
 ---
 
-Insurance pricing depends heavily on understanding which factors actually drive cost. Nittany Valley Insurance Company provided us with policy data and asked us to build a predictive model to predict total insurance charges using linear regression techniques. The dataset includes demographic and behavioral variables such as age, sex, BMI, smoking status, number of dependents, region, claim month, and prior claim activity, along with the total charges billed to each policy.
+## Introduction/Background
 
-Our objective is to use this information to build and evaluate predictive models for insurance charges. To do this, we begin with exploratory data analysis to better understand patterns, distributions, and relationships within the data. From there, we develop multiple candidate linear regression models, interpret the estimated coefficients, and assess model performance using appropriate validation methods.
+##### Insurance pricing depends heavily on understanding which factors actually drive cost. Nittany Valley Insurance Company provided us with policy data and asked us to build a predictive model to predict total insurance charges using linear regression techniques. The dataset includes demographic and behavioral variables such as age, sex, BMI, smoking status, number of dependents, region, claim month, and prior claim activity, along with the total charges billed to each policy.
 
-The ultimate goal of this analysis is to recommend the best possible model that is both statistically sound and practically useful for the company’s pricing and risk management decisions.
+##### Our objective is to use this information to build and evaluate predictive models for insurance charges. To do this, we begin with exploratory data analysis to better understand patterns, distributions, and relationships within the data. From there, we develop multiple candidate linear regression models, interpret the estimated coefficients, and assess model performance using appropriate validation methods.
 
-## Exploratory Data Analysis
+##### The ultimate goal of this analysis is to recommend the best possible model that is both statistically sound and practically useful for the company’s pricing and risk management decisions.
+
+## Data Exploration
 
 ```{r}
 #| echo: false
@@ -57,10 +59,50 @@ for (col_name in xcat) {
 
 ```
 
-During Exploratory Data Analysis, we used a for loop to graph each predictor variable against charges, the response variable we are trying to predict. After reviewing the initial plots, we determined that categorical variables would be better visualized using boxplots, while continuous variables were more appropriately displayed as scatterplots. We therefore separated the categorical and continuous variables, plotting the categorical variables as boxplots and the continuous variables as scatterplots with a fitted linear regression line to better assess potential relationships.
+
+##### During Exploratory Data Analysis, we used a for loop to graph each predictor variable against charges, the response variable we are trying to predict. After reviewing the initial plots, we determined that categorical variables would be better visualized using boxplots, while continuous variables were more appropriately displayed as scatterplots. We therefore separated the categorical and continuous variables, plotting the categorical variables as boxplots and the continuous variables as scatterplots with a fitted linear regression line to better assess potential relationships.
+
+## Modeling Methods/Strategies
 
 ```{r}
 
-x <- list("age", "bmi", "smoker", "children", "priorclaims")
+# col_list = columns identified as valid
+col_list <- list("age", "bmi", "smoker", "children", "priorclaims")
+
+# Initial Model selection using backwards AIC/BIC using the col_list
 
 ```
+
+## Results
+
+### A. Initial Results
+
+```{r}
+
+# Initial Model
+
+# ...and Testing Results
+
+
+```
+
+##### Initial Results Discussion
+
+### B. Interpretation & Model Evaluation
+
+##### [Interpretation Discussion]
+
+##### [Evaluation Discussion]
+
+### C. Refinements
+
+```{r}
+
+# Refined Model
+
+# ...and Final Results
+
+```
+
+##### [Refinements Discussion]
+
