@@ -71,6 +71,21 @@ col_list <- list("age", "bmi", "smoker", "children", "priorclaims")
 
 # Initial Model selection using backwards AIC/BIC using the col_list
 
+# Full model with all predictors
+full_model <- lm(charges ~ age + bmi + smoker + children + priorclaims,
+
+                 data = insurance_data)
+
+summary(full_model)
+
+# Stepwise selection using AIC
+step_model <- step(full_model, direction = "both")
+
+summary(step_model)
+
+# Compare AIC values
+AIC(full_model)
+AIC(step_model)
 ```
 
 ## Results
@@ -109,4 +124,3 @@ col_list <- list("age", "bmi", "smoker", "children", "priorclaims")
 ### Final recommendations
 
 ##### A paragraph to summarize your recommended model and key findings.
-
