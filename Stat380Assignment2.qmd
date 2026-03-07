@@ -93,21 +93,25 @@ AIC(step_model)
 ### A. Initial Results
 
 ```{r}
+# Show summaries for both models
+summary(full_model)
+summary(step_model)
 
-# Initial Model
-
-# ...and Testing Results
-
-
+# Compare model fit statistics
+AIC(full_model)
+AIC(step_model)
+BIC(full_model)
+BIC(step_model)
 ```
 
-##### Initial Results Discussion
+##### The initial regression results showed that the model worked pretty well overall and explained a large amount of the variation in insurance charges. With an $R^2$ of 0.7222, the model explained about 72.22% of the variability in charges, which means the predictors did a good job capturing what affects cost. Smoking had by far the biggest impact on charges, while age, BMI, number of children, and prior claims also all had positive effects. Since the stepwise model ended up with the exact same AIC and BIC values as the full model, there was no reason to simplify it further, so we kept the full model.
+
 
 ### B. Interpretation & Model Evaluation
 
-##### [Interpretation Discussion]
+##### Looking at the model, all of the predictors had a positive effect on insurance charges. That means as age, BMI, number of children, and prior claims go up, the predicted charges also go up, assuming the other variables stay the same. Smoking had by far the biggest effect in the model, which shows that it is the strongest factor related to higher insurance costs. The other variables still mattered, but not nearly as much as smoking.
 
-##### [Evaluation Discussion]
+##### Overall, the model performed pretty well and explained a good amount of the variation in charges. With an $R^2$ of 0.7222 and an adjusted $R^2$ of 0.7205, the model explained about 72% of the variability in insurance charges, which suggests it did a solid job. The overall model was also highly statistically significant, so the predictors were useful when taken together. Since the stepwise model had the exact same AIC and BIC values as the full model, there was no real benefit to simplifying it, so we kept the full model.
 
 ### C. Refinements
 
@@ -124,3 +128,4 @@ AIC(step_model)
 ### Final recommendations
 
 ##### A paragraph to summarize your recommended model and key findings.
+
