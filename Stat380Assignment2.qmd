@@ -2,7 +2,22 @@
 title: "Stat380Assignment2"
 author: "James DiPasquale, Tyler Gully, Ahmad"
 format: html
----
+--- 
+
+## Imports
+
+```{r}
+#| echo: false
+
+library(tidyverse)
+library(ggplot2)
+library(glmnet)
+
+insurance_data <- drop_na(read.csv("insurance_data_S26.csv", header = TRUE))
+
+head(insurance_data)
+
+```
 
 ## Introduction/Background
 
@@ -15,11 +30,6 @@ format: html
 ## Data Exploration
 
 ```{r}
-#| echo: false
-
-library(ggplot2)
-
-insurance_data <- read.csv("insurance_data_S26.csv", header = TRUE)
 
 cols_num <- which(sapply(insurance_data, is.numeric))
 
@@ -27,9 +37,9 @@ xcont <- list("age", "bmi")
 
 cols_num <- which(sapply(insurance_data, function (x) !(is.numeric(x))))
 
-xcat <- list("smoker", "children", "priorclaims")
+xcat <- list("sex", "children", "smoker", "region", "month", "priorclaims")
 
-# Excluded Variables: X, caseid, month, sex, region
+# Excluded Identifier Variables: X, caseid
 
 print(xcont)
 print(xcat)
@@ -60,39 +70,29 @@ for (col_name in xcat) {
 ```
 
 
-##### During Exploratory Data Analysis, we used a for loop to graph each predictor variable against charges, the response variable we are trying to predict. After reviewing the initial plots, we determined that categorical variables would be better visualized using boxplots, while continuous variables were more appropriately displayed as scatterplots. We therefore separated the categorical and continuous variables, plotting the categorical variables as boxplots and the continuous variables as scatterplots with a fitted linear regression line to better assess potential relationships.
+##### During Exploratory Data Analysis, we used a for loop to graph each predictor variable against charges, the response variable we are trying to predict. After reviewing the initial plots, we determined that categorical variables would be better visualized using boxplots, while continuous variables were more appropriately displayed as scatterplots. We therefore separated the categorical and continuous variables, plotting the categorical variables as boxplots and the continuous variables as scatterplots with a fitted linear regression line to better assess potential relationships. We considered excluding month, sex, and region, as their plots seemed to demonstrate little to no correlation with charges, but decided to include them at the start just in case they are relevant.
 
 ## Modeling Methods/Strategies
 
+##### We decided to build a model starting with the variables we identified above as a full model, then use backwards AIC.
+
 ```{r}
 
-# col_list = columns identified as valid
-col_list <- list("age", "bmi", "smoker", "children", "priorclaims")
+# Train/test split
 
-# Initial Model selection using backwards AIC/BIC using the col_list
+train_indices <- sample(nrow(insurance_data), floor(nrow(insurance_data) * 0.85))
+
+train <- insurance_data[train_indices, ]
+test <- insurance_data[-train_indices, ]
 
 # Full model with all predictors
-full_model <- lm(charges ~ age + bmi + smoker + children + priorclaims,
 
-                 data = insurance_data)
-
-summary(full_model)
+full_model <- lm(charges ~ age + bmi + sex + children + smoker + region + month + 
+                 priorclaims, data = train)
 
 # Stepwise selection using AIC
-step_model <- step(full_model, direction = "both")
+step_model <- step(full_model, direction = "backward", k = 2, trace = FALSE)
 
-summary(step_model)
-
-# Compare AIC values
-AIC(full_model)
-AIC(step_model)
-```
-
-## Results
-
-### A. Initial Results
-
-```{r}
 # Show summaries for both models
 summary(full_model)
 summary(step_model)
@@ -102,30 +102,148 @@ AIC(full_model)
 AIC(step_model)
 BIC(full_model)
 BIC(step_model)
+
 ```
 
-##### The initial regression results showed that the model worked pretty well overall and explained a large amount of the variation in insurance charges. With an $R^2$ of 0.7222, the model explained about 72.22% of the variability in charges, which means the predictors did a good job capturing what affects cost. Smoking had by far the biggest impact on charges, while age, BMI, number of children, and prior claims also all had positive effects. Since the stepwise model ended up with the exact same AIC and BIC values as the full model, there was no reason to simplify it further, so we kept the full model.
+## Results Discussion
+
+### A. Initial Results
+
+##### The initial regression results showed that the model worked pretty well overall and explained a large amount of the variation in insurance charges. With an $R^2$ of 0.728, the model explained about 73% of the variability in charges, which means the predictors did a good job capturing what affects cost. The RSE is only about 10% of the total target variable range, which indicates decent precision. Smoking had by far the biggest impact on charges, while age, BMI, number of children, and prior claims also all had positive effects. Since the stepwise model ended up with the exact same AIC and BIC values as the full model, there was no reason to simplify it further, so we kept the full model.
 
 
 ### B. Interpretation & Model Evaluation
 
 ##### Looking at the model, all of the predictors had a positive effect on insurance charges. That means as age, BMI, number of children, and prior claims go up, the predicted charges also go up, assuming the other variables stay the same. Smoking had by far the biggest effect in the model, which shows that it is the strongest factor related to higher insurance costs. The other variables still mattered, but not nearly as much as smoking.
 
-##### Overall, the model performed pretty well and explained a good amount of the variation in charges. With an $R^2$ of 0.7222 and an adjusted $R^2$ of 0.7205, the model explained about 72% of the variability in insurance charges, which suggests it did a solid job. The overall model was also highly statistically significant, so the predictors were useful when taken together. Since the stepwise model had the exact same AIC and BIC values as the full model, there was no real benefit to simplifying it, so we kept the full model.
+##### Overall, the model performed pretty well and explained a good amount of the variation in charges. With a relatively low RSE and an adjusted $R^2$ of 0.7247, the model explained about 73% of the variability in insurance charges, which suggests it did a solid job. The overall model was also highly statistically significant, so the predictors were useful when taken together. Since the stepwise model had the exact same AIC and BIC values as the full model, there was no obvious benefit to simplifying it, so we kept the full model.
 
 ### C. Refinements
 
+##### To try to refine the model further, the more selective BIC model was chosen to compare. The notion behind this logic being that BIC is more selective, punishing models with higher predictor counts. This should offer a less complex model to compare to our initial AIC model for evaluating room for improvement. Then, using the test data from the train/test split, we compare each model's ability to predict future data based on their RMSEs.
+
 ```{r}
 
-# Refined Model
+# Backwards BIC on the AIC model
 
-# ...and Final Results
+bic_step_model <- step(step_model, direction = "backward", k = log(nrow(train)), trace = FALSE)
+
+# Show summaries for both models
+summary(step_model)
+summary(bic_step_model)
+
+# Compare model fit statistics
+AIC(step_model)
+AIC(bic_step_model)
+BIC(step_model)
+BIC(bic_step_model)
+summary(step_model)$r.squared
+summary(bic_step_model)$r.squared
+
 
 ```
 
-##### [Refinements Discussion]
+```{r}
+
+# Test prep
+
+y_train <- train$charges
+x_train <- select(train, -charges)
+y_test <- test$charges
+x_test <- select(test, -charges)
+
+print(nrow(x_test) - nrow(y_test))
+
+RMSE <- function(model) {
+  x_test <- select(test, -charges)
+  predicted <- predict(model, newdata = x_test)
+  sqrt(mean(predicted - y_test)^2)
+}
+
+# ...and Final Results
+
+aic_rmse <- RMSE(step_model)
+
+RMSE(full_model)
+aic_rmse
+RMSE(bic_step_model)
+
+```
+
+##### The refinement made a more elegant but less accurate model. While it still explains about the same amount of variation, the backwards BIC model's accuracy on future data is significantly worse than the base full model or the backwards AIC. Thus, we use LASSO to attempt to find a better model. After this failed to perform better, as a last check we performed forward AIC and BIC and compared them with the backward AIC.
+
+```{r}
+
+x_train <- as.matrix(x_train)
+x_test <- as.matrix(x_test)
+
+cv_model <- cv.glmnet (x = x_train, y = y_train, alpha = 1, nfolds = 10, type.measure = "mse")
+
+plot(cv_model)
+
+print(cv_model$lambda.min)
+print(cv_model$lambda.1se)
+
+print(coef(cv_model, s = "lambda.min"))
+print(coef(cv_model, s = "lambda.1se"))
+
+print("RMSE values for the three candidate models")
+table1 <- data.frame("Backward AIC" = aic_rmse, "one.se" = c(sqrt(mean((predict(cv_model,
+                    s = "lambda.1se", newx = x_test) - y_test)^2))), "mse"
+                    = c(sqrt(mean((predict(cv_model, s = "lambda.min", newx = x_test) - y_test)^2))))
+table1
+
+```
+
+```{r}
+
+null_model <- lm(charges ~ 1, data = train)
+
+forward_bic_model <- step(null_model, direction = "forward", k = log(nrow(train)), scope = list(lower = ~1, upper = full_model), trace = FALSE)
+forward_aic_model <- step(null_model, direction = "forward", k = 2, scope = list(lower = ~1, upper = full_model), trace = FALSE)
+
+print("Compare forward BIC and AIC")
+
+# AIC performs best
+
+summary(step_model)
+summary(forward_bic_model)
+summary(forward_aic_model)
+
+paste("Forward BIC RMSE", RMSE(forward_bic_model))
+paste("Forward AIC RMSE", RMSE(forward_aic_model))
+
+print("Compare forward AIC to backward AIC") 
+
+print("AIC -----")
+paste("Backward AIC", AIC(step_model))
+paste("Forward AIC", AIC(forward_aic_model))
+print("BIC -----")
+paste("Backward AIC", BIC(step_model))
+paste("Forward AIC", BIC(forward_aic_model))
+print("R^2 -----")
+paste("Backward AIC", summary(step_model)$r.squared)
+paste("Forward AIC", summary(forward_aic_model)$r.squared)
+print("RMSE -----")
+paste("Backward AIC", aic_rmse)
+paste("Forward AIC", RMSE(forward_aic_model))
+
+```
+
+##### No models we found performed better than the initial backwards AIC model on any metric other than simplicity.
 
 ### Final recommendations
 
-##### A paragraph to summarize your recommended model and key findings.
+$$\hat{Charges} = 262.61x_{i,age} + 352.64x_{i,bmi} + 581.80x_{i,children} + 23264.20x_{i,smoker} - 1110.13x_{i,NWregion} + 0x_{i,NEregion} - 2667.75x_{i,SEregion} - 2206.32x_{i,SWregion} - 109.83x_{i,month} + 327.97x_{i,priorclaims} - 11415.02$$
+
+```{r}
+
+summary(step_model)
+
+```
+
+##### Model Summary and Key Findings.
+
+
+##### This model predicts insurance charges based on age, bmi, number of children, smoking status, region, and prior claim count within a residual standard error of about $6,400 and R^2 of .728. This implies that the model explains approximately 73% of the variance in the charges data within an error of about $6,400. According to the linear equation, on average, charges go up by about $262.61 for every year of age, $581.80 for every child, $327.97 for every prior insurance claim, and $23,264.20 for smokers. On average, compared to the Northeast, charges are $1,110.13 less in the Northwest, $2667.75 less in the Southeast, and $2206.32 less in the Southwest. Each month later in the year, charges are on average $109.83 less.
 
