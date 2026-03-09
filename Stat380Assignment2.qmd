@@ -1,6 +1,6 @@
 ---
 title: "Stat380Assignment2"
-author: "James DiPasquale, Tyler Gully, Ahmad"
+author: "James DiPasquale, Tyler Gully, Ahmad Raja"
 format: html
 --- 
 
@@ -78,17 +78,20 @@ for (col_name in xcat) {
 
 ```{r}
 
-# Train/test split
+# Train/test split using seed 288, which is a good number because it is twice the square of twelve.
+set.seed(288)
 
 train_indices <- sample(nrow(insurance_data), floor(nrow(insurance_data) * 0.85))
 
 train <- insurance_data[train_indices, ]
 test <- insurance_data[-train_indices, ]
 
-# Full model with all predictors
+```
 
-full_model <- lm(charges ~ age + bmi + sex + children + smoker + region + month + 
-                 priorclaims, data = train)
+```{r}
+
+# Full model with all predictors
+full_model <- lm(charges ~ ., data = train)
 
 # Stepwise selection using AIC
 step_model <- step(full_model, direction = "backward", k = 2, trace = FALSE)
@@ -109,23 +112,22 @@ BIC(step_model)
 
 ### A. Initial Results
 
-##### The initial regression results showed that the model worked pretty well overall and explained a large amount of the variation in insurance charges. With an $R^2$ of 0.728, the model explained about 73% of the variability in charges, which means the predictors did a good job capturing what affects cost. The RSE is only about 10% of the total target variable range, which indicates decent precision. Smoking had by far the biggest impact on charges, while age, BMI, number of children, and prior claims also all had positive effects. Since the stepwise model ended up with the exact same AIC and BIC values as the full model, there was no reason to simplify it further, so we kept the full model.
+##### The initial regression results showed that the model worked pretty well overall and explained a large amount of the variation in insurance charges. With an $R^2$ of about 0.7211, the model explained about 72% of the variability in charges, which means the predictors did a good job capturing what affects cost. The RSE is only about 10% of the total target variable range, which indicates decent precision. Smoking had by far the biggest impact on charges, while age, BMI, number of children, and prior claims also all had positive effects.
 
 
 ### B. Interpretation & Model Evaluation
 
-##### Looking at the model, all of the predictors had a positive effect on insurance charges. That means as age, BMI, number of children, and prior claims go up, the predicted charges also go up, assuming the other variables stay the same. Smoking had by far the biggest effect in the model, which shows that it is the strongest factor related to higher insurance costs. The other variables still mattered, but not nearly as much as smoking.
+##### Looking at the model, all of the predictors except region and month had a positive effect on insurance charges. That means as age, BMI, number of children, and prior claims go up, the predicted charges also go up, assuming the other variables stay the same. Smoking had by far the biggest effect in the model, which shows that it is the strongest factor related to higher insurance costs. The other variables still mattered, but not nearly as much as smoking.
 
-##### Overall, the model performed pretty well and explained a good amount of the variation in charges. With a relatively low RSE and an adjusted $R^2$ of 0.7247, the model explained about 73% of the variability in insurance charges, which suggests it did a solid job. The overall model was also highly statistically significant, so the predictors were useful when taken together. Since the stepwise model had the exact same AIC and BIC values as the full model, there was no obvious benefit to simplifying it, so we kept the full model.
+##### Overall, the model performed pretty well and explained a good amount of the variation in charges. With a relatively low RSE and an adjusted $R^2$ of 0.7177, the model explained about 72% of the variability in insurance charges, which suggests it did a solid job. The overall model was also highly statistically significant, so the predictors were useful when taken together.
 
 ### C. Refinements
 
-##### To try to refine the model further, the more selective BIC model was chosen to compare. The notion behind this logic being that BIC is more selective, punishing models with higher predictor counts. This should offer a less complex model to compare to our initial AIC model for evaluating room for improvement. Then, using the test data from the train/test split, we compare each model's ability to predict future data based on their RMSEs.
+##### To try to refine the model further, the more selective BIC model was chosen to compare. The notion behind this logic being that BIC is more selective, punishing models with higher predictor counts. This was intended to offer a less complex model to compare to our initial AIC model for evaluating room for improvement. Then, using the test data from the train/test split, we compare each model's ability to predict future data based on their RMSEs.
 
 ```{r}
 
 # Backwards BIC on the AIC model
-
 bic_step_model <- step(step_model, direction = "backward", k = log(nrow(train)), trace = FALSE)
 
 # Show summaries for both models
@@ -146,13 +148,10 @@ summary(bic_step_model)$r.squared
 ```{r}
 
 # Test prep
-
 y_train <- train$charges
 x_train <- select(train, -charges)
 y_test <- test$charges
 x_test <- select(test, -charges)
-
-print(nrow(x_test) - nrow(y_test))
 
 RMSE <- function(model) {
   x_test <- select(test, -charges)
@@ -188,9 +187,8 @@ print(coef(cv_model, s = "lambda.min"))
 print(coef(cv_model, s = "lambda.1se"))
 
 print("RMSE values for the three candidate models")
-table1 <- data.frame("Backward AIC" = aic_rmse, "one.se" = c(sqrt(mean((predict(cv_model,
-                    s = "lambda.1se", newx = x_test) - y_test)^2))), "mse"
-                    = c(sqrt(mean((predict(cv_model, s = "lambda.min", newx = x_test) - y_test)^2))))
+table1 <- data.frame("Model" = c("Backward AIC", "1-SE", "MSE"), "RMSE" = c(aic_rmse,
+sqrt(mean((predict(cv_model, s = "lambda.1se", newx = x_test) - y_test)^2)), sqrt(mean((predict(cv_model, s = "lambda.min", newx = x_test) - y_test)^2))))
 table1
 
 ```
@@ -230,20 +228,33 @@ paste("Forward AIC", RMSE(forward_aic_model))
 
 ```
 
-##### No models we found performed better than the initial backwards AIC model on any metric other than simplicity.
+##### No models we found performed better than the initial backwards AIC model.
 
-### Final recommendations
+## Final recommendations
 
-$$\hat{Charges} = 262.61x_{i,age} + 352.64x_{i,bmi} + 581.80x_{i,children} + 23264.20x_{i,smoker} - 1110.13x_{i,NWregion} + 0x_{i,NEregion} - 2667.75x_{i,SEregion} - 2206.32x_{i,SWregion} - 109.83x_{i,month} + 327.97x_{i,priorclaims} - 11415.02$$
+### Model Summary and Key Findings.
 
-```{r}
-
-summary(step_model)
-
-```
-
-##### Model Summary and Key Findings.
+$$\hat{Charges} = 253.70x_{i,age} + 351.27x_{i,bmi} + 456.19x_{i,children} + 22077.38x_{i,smoker} - 837.06x_{i,NWregion} + 0x_{i,NEregion} - 2213.17x_{i,SEregion} - 1582.54x_{i,SWregion} - 114.25x_{i,month} + 483.79x_{i,priorclaims} - 11415.59$$
 
 
 ##### This model predicts insurance charges based on age, bmi, number of children, smoking status, region, and prior claim count within a residual standard error of about $6,400 and R^2 of .728. This implies that the model explains approximately 73% of the variance in the charges data within an error of about $6,400. According to the linear equation, on average, charges go up by about $262.61 for every year of age, $581.80 for every child, $327.97 for every prior insurance claim, and $23,264.20 for smokers. On average, compared to the Northeast, charges are $1,110.13 less in the Northwest, $2667.75 less in the Southeast, and $2206.32 less in the Southwest. Each month later in the year, charges are on average $109.83 less.
 
+
+### RMSE with Additional Data
+
+```{r}
+
+insurance_data_validation <- drop_na(read.csv("insurance_data_validation_S26", header = TRUE))
+
+RMSE <- function(model) {
+  x_test <- select(insurance_data_validation, -charges)
+  y_test <- insurance_data_validation$charges
+  predicted <- predict(model, newdata = x_test)
+  sqrt(mean(predicted - y_test)^2)
+}
+
+RMSE(step_model)
+
+```
+
+##### Given the scale of the target variable and previously derived RMSE values, this is an exceptionally good RMSE, though it is not entirely clear why the model performs better on the validation set than it did on the testing subset created with the train/test split. Possibly the subset was too small. Overall, the candidate model demonstrates strong predictive ability.
